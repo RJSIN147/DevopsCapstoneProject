@@ -38,7 +38,7 @@ textarea {
 
 .app {
   display: grid;
-  grid-template-columns: 240px 1fr;
+  grid-template-columns: 240px minmax(0, 1fr);
   min-height: 100vh;
 }
 
@@ -538,10 +538,17 @@ textarea {
   }
 }
 
+/* very narrow phones: drop the nav icons so the top bar fits */
+@media (max-width: 380px) {
+  .nav-item span[aria-hidden] {
+    display: none;
+  }
+}
+
 /* phone: sidebar becomes a top bar, table rows become cards */
 @media (max-width: 720px) {
   .app {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .sidebar {
@@ -549,8 +556,8 @@ textarea {
     height: auto;
     flex-direction: row;
     align-items: center;
-    padding: 12px 16px;
-    gap: 16px;
+    padding: 10px 16px;
+    gap: 12px;
   }
 
   .brand small,
@@ -558,9 +565,33 @@ textarea {
     display: none;
   }
 
+  .brand-mark {
+    width: 32px;
+    height: 32px;
+    font-size: 17px;
+  }
+
   nav {
     flex-direction: row;
     margin-left: auto;
+  }
+
+  .nav-item {
+    padding: 8px 10px;
+    gap: 6px;
+    font-size: 14px;
+  }
+
+  .stats {
+    gap: 10px;
+  }
+
+  .stat {
+    padding: 14px;
+  }
+
+  .stat strong {
+    font-size: 24px;
   }
 
   .main {
