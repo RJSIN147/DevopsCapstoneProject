@@ -6,7 +6,8 @@ metadata:
     {{- include "clinicdesk.labels" . | nindent 4 }}
   annotations:
     helm.sh/hook: test
-    helm.sh/hook-delete-policy: before-hook-creation,hook-succeeded
+    # keep the pod after it passes so `helm test --logs` can still read it
+    helm.sh/hook-delete-policy: before-hook-creation
 spec:
   restartPolicy: Never
   securityContext:
@@ -29,6 +30,6 @@ spec:
         - -c
         - |
           set -e
-          curl -fsS http://{{ include "clinicdesk.backendName" . }}:{{ .Values.backend.port }}/ready
+          curl -fsS http://{{ include "clinicdesk.backendName" . }}:{{ .Values.backend.port }}/ready && echo
           curl -fsS http://{{ include "clinicdesk.frontendName" . }}/api/doctors > /dev/null
           echo "frontend -> backend proxy works"
