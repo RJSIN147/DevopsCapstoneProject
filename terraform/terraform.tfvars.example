@@ -1,0 +1,20 @@
+# Copy to terraform.tfvars and edit. terraform.tfvars is gitignored.
+# No AWS keys in here, ever. Use `aws configure` or environment variables for credentials.
+
+aws_region         = "ap-south-1"
+project            = "clinicdesk"
+environment        = "dev"
+cluster_name       = "clinicdesk-eks"
+kubernetes_version = "1.34"
+
+vpc_cidr = "10.30.0.0/16"
+az_count = 2
+
+node_instance_types = ["t3.medium"]
+node_capacity_type  = "SPOT"
+node_min_size       = 2
+node_desired_size   = 2
+node_max_size       = 4
+
+# replace with "<your-public-ip>/32" to keep the API endpoint private to you
+cluster_endpoint_public_access_cidrs = ["0.0.0.0/0"]
