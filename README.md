@@ -6,6 +6,8 @@ I built it as my DevOps final capstone. The app is deliberately small. The point
 
 > Demo video and slides are in [`demo/`](demo/). Screenshots for grading are in [`docs/screenshots/`](docs/screenshots/).
 
+![ClinicDesk running locally](docs/screenshots/app-compose.png)
+
 ---
 
 ## Contents
@@ -231,7 +233,7 @@ Frontend helpers (date conversion, status transitions, error parsing) have a few
 cd frontend && npm test
 ```
 
-Evidence: `docs/screenshots/pytest-pass.png` (TODO: add screenshot of `pytest -v`)
+Evidence: [`pytest-pass.png`](docs/screenshots/pytest-pass.png)
 
 ## CI/CD pipeline
 
@@ -260,8 +262,8 @@ So any running pod can be traced back to the exact commit it was built from (`ku
 
 Evidence:
 - Pipeline run: https://github.com/RJSIN147/DevopsCapstoneProject/actions/runs/38954914310 (all jobs green, including the kind smoke deploy)
-- `docs/screenshots/github-actions-green.png` (TODO)
-- `docs/screenshots/ghcr-packages.png` (TODO, the package page showing SHA tags)
+- [`github-actions-green.png`](docs/screenshots/github-actions-green.png)
+- `docs/screenshots/ghcr-packages.png` (TODO: the GHCR package page showing the SHA tags. The packages are private right now, so this needs you logged in to GitHub, or the packages made public first)
 
 ## Security scanning (Trivy)
 
@@ -284,7 +286,7 @@ Trivy scanned the Debian 13 OS packages and all the Python libraries in the back
 
 The first pipeline run actually failed this gate. Trivy found 4 HIGH CVEs (two in urllib3, CVE-2026-97687 and CVE-2026-97689, plus one in msgpack and CVE-2025-47273 in setuptools). None of these were my dependencies. They were copies that pip vendors inside itself, sitting in the image's virtualenv. pip isn't needed once the dependencies are installed, so the Dockerfile now uninstalls it in the build stage and the next run passed.
 
-Evidence: `docs/screenshots/trivy-scan.png` (TODO)
+Evidence: [`trivy-scan.png`](docs/screenshots/trivy-scan.png) (the gate step from the pipeline log, both images at 0 fixable HIGH/CRITICAL)
 
 Other security bits:
 - containers run as non-root, drop all Linux capabilities, `allowPrivilegeEscalation: false`, seccomp `RuntimeDefault`, and the backend has a read-only root filesystem
@@ -420,10 +422,14 @@ For a quick demo without a domain, point the ingress host at the load balancer: 
 The GHCR packages need to be public for EKS to pull them without credentials (GitHub -> your profile -> Packages -> clinicdesk-backend -> Package settings -> Change visibility). The alternative is a docker-registry secret plus `imagePullSecrets` in the values.
 
 Evidence:
-- `docs/screenshots/kubectl-get-pods.png` (TODO)
-- `docs/screenshots/kubectl-get-svc.png` (TODO)
-- `docs/screenshots/helm-list.png` (TODO)
-- `docs/screenshots/app-via-ingress.png` (TODO)
+Taken on the local minikube cluster:
+
+- [`kubectl-get-pods.png`](docs/screenshots/kubectl-get-pods.png)
+- [`kubectl-get-svc.png`](docs/screenshots/kubectl-get-svc.png) (services + ingress)
+- [`kubectl-get-all.png`](docs/screenshots/kubectl-get-all.png) (deployments, statefulset, HPA, PDB, ServiceMonitor, PVC)
+- [`helm-list.png`](docs/screenshots/helm-list.png)
+- [`app-via-ingress.png`](docs/screenshots/app-via-ingress.png) (http://clinicdesk.local through ingress-nginx)
+- EKS versions of these: TODO once the cluster is up
 
 ## GitOps with ArgoCD
 
@@ -451,7 +457,9 @@ git push -> CI tests, builds, scans, pushes ghcr.io/...:<sha>
 
 The tag bump is a commit made by the pipeline, so it's switched off until you add the repository variable `GITOPS_AUTO_BUMP` = `true` (Settings -> Secrets and variables -> Actions -> Variables). Without it, update the two `tag:` lines in `values-prod.yaml` to the SHA of a green run and push; ArgoCD picks it up the same way.
 
-Evidence: `docs/screenshots/argocd-synced.png` (TODO)
+Evidence: [`argocd-synced.png`](docs/screenshots/argocd-synced.png) (minikube, `application-dev.yaml`, Synced + Healthy on the latest main commit)
+
+If you switch the app from ArgoCD back to a plain `helm upgrade --install`, ArgoCD's field manager still owns some fields, so Helm 4 needs `--force-conflicts` the first time.
 
 ## Observability (Prometheus + Grafana)
 
@@ -469,9 +477,9 @@ kubectl port-forward -n monitoring svc/monitoring-grafana 3001:80
 ```
 
 Evidence:
-- `docs/screenshots/metrics-endpoint.png` (TODO)
-- `docs/screenshots/prometheus-targets-up.png` (TODO)
-- `docs/screenshots/grafana-dashboard.png` (TODO)
+- [`metrics-endpoint.png`](docs/screenshots/metrics-endpoint.png)
+- [`prometheus-targets-up.png`](docs/screenshots/prometheus-targets-up.png) (both backend pods UP via the ServiceMonitor)
+- [`grafana-dashboard.png`](docs/screenshots/grafana-dashboard.png) (the spikes are two runs of `scripts/load-test.sh`)
 
 ## Autoscaling (HPA)
 
@@ -488,7 +496,7 @@ kubectl get hpa -n clinicdesk -w
 
 It uses `hey` if installed, plain curl loops otherwise. Scale-down has a 2 minute stabilization window so the pods don't disappear the second the load stops.
 
-Evidence: `docs/screenshots/hpa-scaling.png` (TODO)
+Evidence: [`hpa-scaling.png`](docs/screenshots/hpa-scaling.png) (2 -> 6 pods at 190% CPU during the load test)
 
 ## Troubleshooting lab
 
@@ -518,36 +526,38 @@ Application
   [x] docker compose up --build runs postgres, backend, frontend
   [x] 4+ REST endpoints (GET/POST/PUT/DELETE on doctors and appointments)
   [x] Alembic migrations in backend/alembic/versions
-  [ ] screenshot of the app in the browser             docs/screenshots/app-compose.png
+  [x] screenshot of the app in the browser             docs/screenshots/app-compose.png
 
 Testing
   [x] 25 pytest tests, in-memory SQLite, pytest.ini + conftest.py
-  [ ] pytest -v screenshot                             docs/screenshots/pytest-pass.png
+  [x] pytest -v screenshot                             docs/screenshots/pytest-pass.png
 
 Docker
   [x] backend/Dockerfile, frontend/Dockerfile (multi-stage)
   [x] non-root in both images
-  [ ] docker compose up screenshot                     docs/screenshots/compose-up.png
+  [x] docker compose up screenshot                     docs/screenshots/compose-up.png
 
 CI/CD
   [x] workflow runs on push to main, pytest gates the build
   [x] images pushed to GHCR tagged with the commit SHA
-  [ ] link to a green run + GHCR screenshot
+  [x] link to a green run + screenshot                 docs/screenshots/github-actions-green.png
+  [ ] GHCR package page screenshot                     docs/screenshots/ghcr-packages.png
 
 Security
   [x] Trivy scan on both images, fails on HIGH/CRITICAL
   [x] no secrets in git (secret scan in CI)
-  [ ] Trivy output screenshot + written explanation above
+  [x] Trivy output screenshot + written explanation    docs/screenshots/trivy-scan.png
 
 Terraform
   [x] terraform.tfvars.example, no credentials
   [ ] plan / AWS console / destroy screenshots
 
 Kubernetes + Helm
-  [ ] kubectl get pods, svc, helm list, app through ingress screenshots
+  [x] kubectl get pods, svc, helm list, ingress, HPA   (minikube)
+  [ ] same on EKS
 
 Observability
-  [ ] /metrics, Prometheus targets UP, Grafana dashboard screenshots
+  [x] /metrics, Prometheus targets UP, Grafana dashboard
 
 Documentation
   [x] README.md
