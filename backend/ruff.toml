@@ -1,0 +1,14 @@
+line-length = 120
+target-version = "py312"
+
+[lint]
+select = ["E", "F", "W", "I", "B", "UP"]
+# FastAPI's Depends()/Query() in defaults is the documented pattern
+ignore = ["B008"]
+
+[lint.per-file-ignores]
+"alembic/versions/*" = ["I001"]
+
+[lint.isort]
+# the local alembic/ folder confuses isort into thinking alembic is first-party
+known-third-party = ["alembic"]
