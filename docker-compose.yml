@@ -22,6 +22,7 @@ services:
     image: clinicdesk-backend:local
     environment:
       DATABASE_URL: postgresql+psycopg://clinicdesk:${POSTGRES_PASSWORD:-clinicdesk}@postgres:5432/clinicdesk
+      CLINIC_TIMEZONE: ${CLINIC_TIMEZONE:-Asia/Kolkata}
     depends_on:
       postgres:
         condition: service_healthy

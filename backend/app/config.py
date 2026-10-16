@@ -7,6 +7,8 @@ class Settings(BaseSettings):
     database_url: str = "postgresql+psycopg://clinicdesk:clinicdesk@localhost:5432/clinicdesk"
     # comma separated list, only matters when the UI is served from another origin (vite dev server)
     cors_origins: str = "http://localhost:5173,http://localhost:3000"
+    # times are stored in UTC, but "today" and the ?on= day filter mean the clinic's local day
+    clinic_timezone: str = "Asia/Kolkata"
 
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 

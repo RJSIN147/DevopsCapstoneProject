@@ -11,6 +11,8 @@ backend:
   replicaCount: 2
   port: 8000
   corsOrigins: ""
+  # "today" and the day filter in the UI are worked out in this timezone
+  clinicTimezone: Asia/Kolkata
   resources:
     requests: { cpu: 100m, memory: 192Mi }
     limits: { cpu: 500m, memory: 384Mi }

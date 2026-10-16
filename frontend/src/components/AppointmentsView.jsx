@@ -19,11 +19,12 @@ export default function AppointmentsView({ doctors, refreshKey, onChanged }) {
       .listAppointments({
         status: status === 'ALL' ? '' : status,
         doctor_id: doctorId,
+        // the API works out the day in the clinic's timezone (CLINIC_TIMEZONE on the backend)
+        on: day,
       })
       .then((rows) => {
         if (cancelled) return;
-        // the API filters by UTC day, the desk thinks in local days, so filter that part here
-        setAppointments(day ? rows.filter((a) => todayLocal(new Date(a.scheduled_at)) === day) : rows);
+        setAppointments(rows);
         setError('');
       })
       .catch((e) => !cancelled && setError(e.message))

@@ -99,3 +99,15 @@ def test_stats(client, book, slot):
     assert stats["booked"] == 1
     assert stats["completed"] == 1
     assert stats["activeDoctors"] == 1
+
+
+def test_day_filter_uses_clinic_timezone(client, book, slot):
+    # 20:00 UTC is already 01:30 the next morning in Asia/Kolkata (the default clinic timezone)
+    late = slot.replace(hour=20, minute=0)
+    appt = book(scheduled_at=late.isoformat()).json()
+
+    next_local_day = (late + timedelta(days=1)).date().isoformat()
+    same_utc_day = late.date().isoformat()
+
+    assert [a["id"] for a in client.get("/api/appointments", params={"on": next_local_day}).json()] == [appt["id"]]
+    assert client.get("/api/appointments", params={"on": same_utc_day}).json() == []

@@ -1,10 +1,12 @@
 from datetime import UTC, date, datetime, time, timedelta
+from zoneinfo import ZoneInfo
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Response, status
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session, joinedload
 
 from .. import metrics
+from ..config import settings
 from ..db import get_db
 from ..models import Appointment, Doctor
 from ..schemas import AppointmentCreate, AppointmentOut, AppointmentStatus, AppointmentUpdate, StatsOut, as_utc
@@ -52,16 +54,23 @@ def check_slot_free(db: Session, doctor_id: int, start: datetime, minutes: int, 
             )
 
 
+def clinic_tz() -> ZoneInfo:
+    return ZoneInfo(settings.clinic_timezone)
+
+
 def day_bounds(day: date) -> tuple[datetime, datetime]:
-    start = datetime.combine(day, time.min, tzinfo=UTC)
-    return start, start + timedelta(days=1)
+    """Start and end (UTC) of a calendar day in the clinic's timezone."""
+    tz = clinic_tz()
+    start = datetime.combine(day, time.min, tzinfo=tz)
+    end = datetime.combine(day + timedelta(days=1), time.min, tzinfo=tz)
+    return start.astimezone(UTC), end.astimezone(UTC)
 
 
 @router.get("", response_model=list[AppointmentOut])
 def list_appointments(
     status_filter: AppointmentStatus | None = Query(default=None, alias="status"),
     doctor_id: int | None = None,
-    on: date | None = Query(default=None, description="Only appointments on this day (UTC)"),
+    on: date | None = Query(default=None, description="Only appointments on this day (clinic timezone)"),
     db: Session = Depends(get_db),
 ):
     query = select(Appointment).options(joinedload(Appointment.doctor)).order_by(Appointment.scheduled_at)
@@ -79,7 +88,7 @@ def list_appointments(
 def appointment_stats(db: Session = Depends(get_db)):
     rows = db.execute(select(Appointment.status, func.count(Appointment.id)).group_by(Appointment.status)).all()
     counts = dict(rows)
-    start, end = day_bounds(datetime.now(UTC).date())
+    start, end = day_bounds(datetime.now(clinic_tz()).date())
     today = db.scalar(
         select(func.count(Appointment.id)).where(
             Appointment.scheduled_at >= start,

@@ -5,3 +5,5 @@ psycopg[binary]==3.3.6
 pydantic-settings==2.16.0
 prometheus-fastapi-instrumentator==8.1.0
 alembic==1.20.0
+# zoneinfo data, so CLINIC_TIMEZONE works even if the base image has no system tz database
+tzdata==2026.5

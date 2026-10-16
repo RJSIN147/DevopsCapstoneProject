@@ -59,6 +59,8 @@ spec:
                 secretKeyRef:
                   name: {{ include "clinicdesk.dbSecretName" . }}
                   key: database-url
+            - name: CLINIC_TIMEZONE
+              value: {{ .Values.backend.clinicTimezone | quote }}
             {{- with .Values.backend.corsOrigins }}
             - name: CORS_ORIGINS
               value: {{ . | quote }}
