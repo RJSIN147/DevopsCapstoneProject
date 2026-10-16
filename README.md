@@ -28,7 +28,6 @@ I built it as my DevOps final capstone. The app is deliberately small. The point
 14. [Autoscaling (HPA)](#autoscaling-hpa)
 15. [Troubleshooting lab](#troubleshooting-lab)
 16. [Known issues and limitations](#known-issues-and-limitations)
-17. [Submission checklist](#submission-checklist)
 
 ---
 
@@ -517,50 +516,3 @@ Evidence: [`hpa-scaling.png`](docs/screenshots/hpa-scaling.png) (2 -> 6 pods at 
 - **Timezones:** times are stored in UTC and the browser shows them in its local time, while "today" is worked out in `CLINIC_TIMEZONE`. If a browser in another timezone opens the app the two can disagree near midnight. One clinic, one timezone, so I left it like that.
 - **Terraform state is local** by default. The S3 backend block is there, commented out, for shared state.
 - **GHCR visibility:** packages may need to be made public by hand before EKS can pull them.
-
-## Submission checklist
-
-```text
-Application
-  [x] GitHub repo: https://github.com/RJSIN147/DevopsCapstoneProject
-  [x] docker compose up --build runs postgres, backend, frontend
-  [x] 4+ REST endpoints (GET/POST/PUT/DELETE on doctors and appointments)
-  [x] Alembic migrations in backend/alembic/versions
-  [x] screenshot of the app in the browser             docs/screenshots/app-compose.png
-
-Testing
-  [x] 25 pytest tests, in-memory SQLite, pytest.ini + conftest.py
-  [x] pytest -v screenshot                             docs/screenshots/pytest-pass.png
-
-Docker
-  [x] backend/Dockerfile, frontend/Dockerfile (multi-stage)
-  [x] non-root in both images
-  [x] docker compose up screenshot                     docs/screenshots/compose-up.png
-
-CI/CD
-  [x] workflow runs on push to main, pytest gates the build
-  [x] images pushed to GHCR tagged with the commit SHA
-  [x] link to a green run + screenshot                 docs/screenshots/github-actions-green.png
-  [ ] GHCR package page screenshot                     docs/screenshots/ghcr-packages.png
-
-Security
-  [x] Trivy scan on both images, fails on HIGH/CRITICAL
-  [x] no secrets in git (secret scan in CI)
-  [x] Trivy output screenshot + written explanation    docs/screenshots/trivy-scan.png
-
-Terraform
-  [x] terraform.tfvars.example, no credentials
-  [ ] plan / AWS console / destroy screenshots
-
-Kubernetes + Helm
-  [x] kubectl get pods, svc, helm list, ingress, HPA   (minikube)
-  [ ] same on EKS
-
-Observability
-  [x] /metrics, Prometheus targets UP, Grafana dashboard
-
-Documentation
-  [x] README.md
-  [ ] demo/presentation.mp4                            MANDATORY
-  [x] demo/ClinicDesk-Capstone.pptx (slides)
-```
