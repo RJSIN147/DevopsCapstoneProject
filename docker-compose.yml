@@ -4,10 +4,11 @@ services:
     environment:
       POSTGRES_DB: clinicdesk
       POSTGRES_USER: clinicdesk
-      POSTGRES_PASSWORD: clinicdesk
+      # local dev only. override with POSTGRES_PASSWORD=... in a .env file next to this compose file
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-clinicdesk}
     ports:
       # 5433 on the host so it does not clash with a locally installed postgres
-      - "${POSTGRES_HOST_PORT:-5433}:5432"
+      - "127.0.0.1:${POSTGRES_HOST_PORT:-5433}:5432"
     volumes:
       - postgres-data:/var/lib/postgresql/data
     healthcheck:
@@ -20,7 +21,7 @@ services:
     build: ./backend
     image: clinicdesk-backend:local
     environment:
-      DATABASE_URL: postgresql+psycopg://clinicdesk:clinicdesk@postgres:5432/clinicdesk
+      DATABASE_URL: postgresql+psycopg://clinicdesk:${POSTGRES_PASSWORD:-clinicdesk}@postgres:5432/clinicdesk
     depends_on:
       postgres:
         condition: service_healthy

@@ -106,7 +106,7 @@ def get_appointment(appointment_id: int, db: Session = Depends(get_db)):
 
 @router.post("", response_model=AppointmentOut, status_code=status.HTTP_201_CREATED)
 def create_appointment(payload: AppointmentCreate, db: Session = Depends(get_db)):
-    doctor = check_doctor(db, payload.doctor_id)
+    check_doctor(db, payload.doctor_id)
     if payload.status != "CANCELLED":
         check_slot_free(db, payload.doctor_id, payload.scheduled_at, payload.duration_minutes)
 
@@ -114,7 +114,7 @@ def create_appointment(payload: AppointmentCreate, db: Session = Depends(get_db)
     db.add(appt)
     db.commit()
     db.refresh(appt)
-    metrics.appointments_booked.labels(specialty=doctor.specialty).inc()
+    metrics.appointments_booked.inc()
     return appt
 
 
