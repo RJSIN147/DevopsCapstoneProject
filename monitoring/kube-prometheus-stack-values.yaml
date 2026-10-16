@@ -1,0 +1,36 @@
+# helm install monitoring prometheus-community/kube-prometheus-stack \
+#   -n monitoring --create-namespace -f monitoring/kube-prometheus-stack-values.yaml
+
+prometheus:
+  prometheusSpec:
+    # pick up ServiceMonitors from every namespace, not just ones labelled for this release
+    serviceMonitorSelectorNilUsesHelmValues: false
+    serviceMonitorNamespaceSelector: {}
+    podMonitorSelectorNilUsesHelmValues: false
+    retention: 3d
+    resources:
+      requests: { cpu: 200m, memory: 512Mi }
+
+grafana:
+  enabled: true
+  # TODO: change this before showing the cluster to anyone, or pass --set grafana.adminPassword=...
+  adminPassword: change-me
+  sidecar:
+    dashboards:
+      enabled: true
+      label: grafana_dashboard
+      # the clinicdesk chart ships its dashboard as a ConfigMap in the app namespace
+      searchNamespace: ALL
+
+alertmanager:
+  enabled: false
+
+# EKS/minikube don't expose these control plane components, skip the noisy failing targets
+kubeEtcd:
+  enabled: false
+kubeControllerManager:
+  enabled: false
+kubeScheduler:
+  enabled: false
+kubeProxy:
+  enabled: false
