@@ -13,8 +13,12 @@ prometheus:
 
 grafana:
   enabled: true
-  # TODO: change this before showing the cluster to anyone, or pass --set grafana.adminPassword=...
-  adminPassword: change-me
+  # admin login comes from a secret you create yourself (see monitoring/README.md),
+  # so no password lives in git
+  admin:
+    existingSecret: grafana-admin
+    userKey: admin-user
+    passwordKey: admin-password
   sidecar:
     dashboards:
       enabled: true

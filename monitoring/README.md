@@ -10,6 +10,13 @@ Prometheus and Grafana come from the `kube-prometheus-stack` chart. The ClinicDe
 ```bash
 helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
 helm repo update
+
+# Grafana admin login, pick your own password
+kubectl create namespace monitoring
+kubectl create secret generic grafana-admin -n monitoring \
+  --from-literal=admin-user=admin \
+  --from-literal=admin-password='<choose-a-password>'
+
 helm upgrade --install monitoring prometheus-community/kube-prometheus-stack \
   -n monitoring --create-namespace \
   -f monitoring/kube-prometheus-stack-values.yaml
@@ -23,7 +30,7 @@ Install this before the app (or run `helm upgrade` on the app afterwards). The S
 # Prometheus -> Status -> Targets, look for serviceMonitor/clinicdesk/clinicdesk-backend
 kubectl port-forward -n monitoring svc/monitoring-kube-prometheus-prometheus 9090:9090
 
-# Grafana, user admin, password from the values file
+# Grafana, log in with the user/password from the grafana-admin secret
 kubectl port-forward -n monitoring svc/monitoring-grafana 3001:80
 ```
 

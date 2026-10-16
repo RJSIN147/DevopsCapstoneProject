@@ -15,6 +15,11 @@ frontend:
     enabled: true
 
 postgres:
+  # don't use the chart's demo password on a real cluster. create this secret by hand
+  # before the first sync (command in the README, "Deploying to EKS"), it needs the keys
+  # username, password, database and database-url
+  existingSecret: clinicdesk-db-prod
+  password: ""
   storage:
     size: 10Gi
     # created by k8s/storageclass-gp3.yaml, EKS 1.30+ has no default storage class
@@ -25,3 +30,9 @@ ingress:
   className: nginx
   # TODO: put the real hostname here (or use the ingress-nginx load balancer DNS name)
   host: clinicdesk.example.com
+  # TODO: no TLS yet. once cert-manager and a real domain are in place, switch this on:
+  # annotations:
+  #   cert-manager.io/cluster-issuer: letsencrypt-prod
+  # tls:
+  #   - hosts: [clinicdesk.example.com]
+  #     secretName: clinicdesk-tls
