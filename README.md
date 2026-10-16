@@ -92,7 +92,7 @@ Request path in the browser: the React app only ever calls `/api/...` on its own
 ├── backend/                 FastAPI app
 │   ├── app/                 main.py, models, schemas, routers/, metrics.py
 │   ├── alembic/versions/    0001 tables, 0002 seed doctors
-│   ├── tests/               pytest suite (24 tests)
+│   ├── tests/               pytest suite (25 tests)
 │   ├── Dockerfile
 │   └── requirements*.txt
 ├── frontend/                React + Vite app, nginx config template, Dockerfile
@@ -147,7 +147,7 @@ The rules the backend enforces:
 
 - no overlapping bookings for the same doctor (cancelled ones don't count)
 - a paused doctor can't take new bookings
-- times are stored in UTC, the browser shows them in local time
+- times are stored in UTC; "today" and the day filter use the clinic's timezone (`CLINIC_TIMEZONE`, default `Asia/Kolkata`)
 - a doctor with history can't be deleted, only paused, so old appointments keep their doctor
 
 ### Database
@@ -221,7 +221,7 @@ pytest -v
 ruff check . && ruff format --check .
 ```
 
-There are 24 tests across `test_health.py`, `test_doctors.py` and `test_appointments.py`. They cover health/ready/metrics, doctor CRUD, booking, validation errors, double-booking, back-to-back slots, rebooking a cancelled slot, status changes, rescheduling into a taken slot, filters and stats.
+There are 25 tests across `test_health.py`, `test_doctors.py` and `test_appointments.py`. They cover health/ready/metrics, doctor CRUD, booking, validation errors, double-booking, back-to-back slots, rebooking a cancelled slot, status changes, rescheduling into a taken slot, filters (including a day boundary that differs between UTC and the clinic timezone) and stats.
 
 The tests never touch Postgres. `tests/conftest.py` forces `DATABASE_URL=sqlite://`, builds a fresh in-memory SQLite database for every single test and swaps it in with FastAPI's `dependency_overrides`. Every test starts from an empty database and the order doesn't matter.
 
@@ -259,7 +259,7 @@ ghcr.io/rjsin147/clinicdesk-frontend:<commit-sha>
 So any running pod can be traced back to the exact commit it was built from (`kubectl get deploy -n clinicdesk -o wide` shows the tag).
 
 Evidence:
-- Pipeline run: TODO (paste the link to a green run from the Actions tab)
+- Pipeline run: https://github.com/RJSIN147/DevopsCapstoneProject/actions/runs/38954914310 (all jobs green, including the kind smoke deploy)
 - `docs/screenshots/github-actions-green.png` (TODO)
 - `docs/screenshots/ghcr-packages.png` (TODO, the package page showing SHA tags)
 
@@ -506,7 +506,7 @@ Evidence: `docs/screenshots/hpa-scaling.png` (TODO)
 - **One NAT gateway** to save money, so it's a single point of failure for outbound traffic from the private subnets.
 - **ingress-nginx** is what the course used, but the upstream project has been retired. Moving to Gateway API (or the AWS Load Balancer Controller on EKS) would be the next step.
 - **Patient data:** the app stores names and phone numbers. That's personal health data, so a real deployment would also need encryption at rest for the DB (the gp3 storage class already sets `encrypted: "true"`), access logging and a retention policy.
-- **Times** are stored in UTC and shown in the browser's local time. The day filter in the UI works on local days.
+- **Timezones:** times are stored in UTC and the browser shows them in its local time, while "today" is worked out in `CLINIC_TIMEZONE`. If a browser in another timezone opens the app the two can disagree near midnight. One clinic, one timezone, so I left it like that.
 - **Terraform state is local** by default. The S3 backend block is there, commented out, for shared state.
 - **GHCR visibility:** packages may need to be made public by hand before EKS can pull them.
 
@@ -521,7 +521,7 @@ Application
   [ ] screenshot of the app in the browser             docs/screenshots/app-compose.png
 
 Testing
-  [x] 24 pytest tests, in-memory SQLite, pytest.ini + conftest.py
+  [x] 25 pytest tests, in-memory SQLite, pytest.ini + conftest.py
   [ ] pytest -v screenshot                             docs/screenshots/pytest-pass.png
 
 Docker
