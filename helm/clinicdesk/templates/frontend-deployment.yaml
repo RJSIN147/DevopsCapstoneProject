@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "clinicdesk.frontendName" . }}
+  labels:
+    {{- include "clinicdesk.labels" . | nindent 4 }}
+    {{- include "clinicdesk.selectorLabels" (dict "ctx" $ "component" "frontend") | nindent 4 }}
+spec:
+  {{- if not .Values.frontend.autoscaling.enabled }}
+  replicas: {{ .Values.frontend.replicaCount }}
+  {{- end }}
+  revisionHistoryLimit: 5
+  selector:
+    matchLabels:
+      {{- include "clinicdesk.selectorLabels" (dict "ctx" $ "component" "frontend") | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "clinicdesk.selectorLabels" (dict "ctx" $ "component" "frontend") | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 101
+        runAsGroup: 101
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: frontend
+          image: {{ include "clinicdesk.image" (dict "ctx" $ "image" .Values.frontend.image) | quote }}
+          imagePullPolicy: {{ .Values.frontend.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.frontend.port }}
+          env:
+            # nginx renders this into its config at startup (see nginx.conf.template)
+            - name: BACKEND_URL
+              value: "http://{{ include "clinicdesk.backendName" . }}:{{ .Values.backend.port }}"
+          readinessProbe:
+            httpGet: { path: /healthz, port: http }
+            periodSeconds: 10
+          livenessProbe:
+            httpGet: { path: /healthz, port: http }
+            initialDelaySeconds: 5
+            periodSeconds: 15
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities: { drop: [ALL] }
+          resources:
+            {{- toYaml .Values.frontend.resources | nindent 12 }}

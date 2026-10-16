@@ -1,0 +1,19 @@
+# minikube: images are built locally and loaded with `minikube image load`
+backend:
+  image:
+    repository: clinicdesk-backend
+    tag: local
+    pullPolicy: Never
+frontend:
+  image:
+    repository: clinicdesk-frontend
+    tag: local
+    pullPolicy: Never
+
+ingress:
+  enabled: true
+  host: clinicdesk.local
+
+postgres:
+  storage:
+    size: 1Gi

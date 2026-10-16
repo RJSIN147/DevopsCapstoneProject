@@ -1,0 +1,13 @@
+{{- if .Values.monitoring.grafanaDashboard.enabled }}
+# Grafana's sidecar (kube-prometheus-stack) loads any ConfigMap with this label as a dashboard
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "clinicdesk.fullname" . }}-dashboard
+  labels:
+    {{- include "clinicdesk.labels" . | nindent 4 }}
+    grafana_dashboard: "1"
+data:
+  clinicdesk.json: |-
+{{ .Files.Get "dashboards/clinicdesk.json" | indent 4 }}
+{{- end }}

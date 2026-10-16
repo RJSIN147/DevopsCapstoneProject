@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "clinicdesk.backendName" . }}
+  labels:
+    {{- include "clinicdesk.labels" . | nindent 4 }}
+    {{- include "clinicdesk.selectorLabels" (dict "ctx" $ "component" "backend") | nindent 4 }}
+spec:
+  type: ClusterIP
+  selector:
+    {{- include "clinicdesk.selectorLabels" (dict "ctx" $ "component" "backend") | nindent 4 }}
+  ports:
+    - name: http
+      port: {{ .Values.backend.port }}
+      targetPort: http

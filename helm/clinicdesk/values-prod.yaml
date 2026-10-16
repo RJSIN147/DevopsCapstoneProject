@@ -1,0 +1,27 @@
+# EKS. Image tags are commit SHAs pushed by GitHub Actions.
+backend:
+  image:
+    repository: ghcr.io/rjsin147/clinicdesk-backend
+    tag: "REPLACE_WITH_COMMIT_SHA"
+  autoscaling:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 8
+frontend:
+  image:
+    repository: ghcr.io/rjsin147/clinicdesk-frontend
+    tag: "REPLACE_WITH_COMMIT_SHA"
+  autoscaling:
+    enabled: true
+
+postgres:
+  storage:
+    size: 10Gi
+    # created by k8s/storageclass-gp3.yaml, EKS 1.30+ has no default storage class
+    storageClass: gp3
+
+ingress:
+  enabled: true
+  className: nginx
+  # TODO: put the real hostname here (or use the ingress-nginx load balancer DNS name)
+  host: clinicdesk.example.com

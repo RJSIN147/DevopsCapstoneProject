@@ -1,0 +1,19 @@
+ClinicDesk is deployed as release "{{ .Release.Name }}" in namespace "{{ .Release.Namespace }}".
+
+Check the pods:
+  kubectl get pods -n {{ .Release.Namespace }}
+
+{{- if .Values.ingress.enabled }}
+
+Open the app:
+  http://{{ .Values.ingress.host }}/
+  http://{{ .Values.ingress.host }}/api/doctors
+{{- else }}
+
+No ingress enabled. Port-forward instead:
+  kubectl port-forward -n {{ .Release.Namespace }} svc/{{ include "clinicdesk.frontendName" . }} 8080:80
+  then open http://localhost:8080
+{{- end }}
+
+Backend metrics for Prometheus are on svc/{{ include "clinicdesk.backendName" . }}:{{ .Values.backend.port }}/metrics
+Run `helm test {{ .Release.Name }} -n {{ .Release.Namespace }}` to check the API is answering.
