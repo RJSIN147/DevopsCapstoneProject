@@ -1,0 +1,14 @@
+# Lab 2: the selector has a typo (backed instead of backend), so the service matches no pods.
+# kubectl apply -f troubleshooting/broken-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: clinicdesk-broken-service
+  namespace: clinicdesk
+spec:
+  selector:
+    app.kubernetes.io/name: clinicdesk
+    app.kubernetes.io/component: backed
+  ports:
+    - port: 8000
+      targetPort: 8000

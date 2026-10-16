@@ -1,0 +1,25 @@
+# Lab 3: backend pointed at a database host that doesn't exist.
+# Alembic fails on startup, the container exits, kubernetes keeps restarting it -> CrashLoopBackOff
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: clinicdesk-bad-db
+  namespace: clinicdesk
+spec:
+  replicas: 1
+  selector:
+    matchLabels: { app: bad-db }
+  template:
+    metadata:
+      labels: { app: bad-db }
+    spec:
+      containers:
+        - name: backend
+          # TODO: swap in a real pushed tag, e.g. the one in helm/clinicdesk/values-prod.yaml
+          image: ghcr.io/rjsin147/clinicdesk-backend:REPLACE_WITH_COMMIT_SHA
+          env:
+            - name: DATABASE_URL
+              value: postgresql+psycopg://clinicdesk:clinicdesk@postgres-typo:5432/clinicdesk
+          resources:
+            requests: { cpu: 50m, memory: 128Mi }
+            limits: { cpu: 200m, memory: 256Mi }

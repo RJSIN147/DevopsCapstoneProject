@@ -1,0 +1,21 @@
+# Lab 1: the tag below was never pushed, so the pod can't start.
+# kubectl apply -f troubleshooting/broken-image.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: clinicdesk-broken-image
+  namespace: clinicdesk
+spec:
+  replicas: 1
+  selector:
+    matchLabels: { app: broken-image }
+  template:
+    metadata:
+      labels: { app: broken-image }
+    spec:
+      containers:
+        - name: backend
+          image: ghcr.io/rjsin147/clinicdesk-backend:this-tag-does-not-exist
+          resources:
+            requests: { cpu: 50m, memory: 64Mi }
+            limits: { cpu: 100m, memory: 128Mi }
