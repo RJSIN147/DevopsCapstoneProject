@@ -37,6 +37,8 @@ def test_double_booking_same_doctor_is_rejected(book, slot):
     assert book().status_code == 201
     overlapping = book(patient_name="Arjun Verma", scheduled_at=(slot + timedelta(minutes=10)).isoformat())
     assert overlapping.status_code == 409
+    # slot is 10:00 UTC, which is 15:30 in the default clinic timezone (Asia/Kolkata)
+    assert "15:30" in overlapping.json()["detail"]
 
 
 def test_back_to_back_slots_are_allowed(book, slot):

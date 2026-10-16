@@ -50,7 +50,8 @@ def check_slot_free(db: Session, doctor_id: int, start: datetime, minutes: int, 
             metrics.booking_conflicts.inc()
             raise HTTPException(
                 status_code=409,
-                detail=f"Doctor already has an appointment at {other_start:%H:%M} UTC",
+                # show the clash in clinic time, that's the clock the receptionist is looking at
+                detail=f"Doctor already has an appointment at {other_start.astimezone(clinic_tz()):%H:%M}",
             )
 
 
