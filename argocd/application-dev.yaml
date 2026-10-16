@@ -11,6 +11,8 @@ spec:
     targetRevision: main
     path: helm/clinicdesk
     helm:
+      # same release name as a manual `helm install clinicdesk`, so resource names match the docs
+      releaseName: clinicdesk
       valueFiles:
         - values-dev.yaml
   destination:
