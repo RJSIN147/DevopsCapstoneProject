@@ -8,7 +8,7 @@ Evidence for each grading module. The Kubernetes, ArgoCD and monitoring ones wer
 | [`app-booking-conflict.png`](app-booking-conflict.png) | booking modal rejecting a double booking (409 from the API) | M1 | done |
 | [`api-docs.png`](api-docs.png) | Swagger UI at http://localhost:8000/docs | M1 | done |
 | [`pytest-pass.png`](pytest-pass.png) | `pytest -v`, 25 passed | M2 | done |
-| `git-log.png` | commit history | M3 | see below |
+| [`git-log.png`](git-log.png) | commit history (`git log`) | M3 | done |
 | [`compose-up.png`](compose-up.png) | `docker compose up --build` with all three services up | M4 | done |
 | [`github-actions-green.png`](github-actions-green.png) | a green run of ClinicDesk CI/CD | M5 | done |
 | `ghcr-packages.png` | GHCR package page with SHA tags | M5 | TODO (packages are private, needs a logged-in browser) |
