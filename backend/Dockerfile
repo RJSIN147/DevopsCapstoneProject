@@ -5,7 +5,10 @@ ENV PIP_NO_CACHE_DIR=1 PIP_DISABLE_PIP_VERSION_CHECK=1
 RUN python -m venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH"
 COPY requirements.txt .
-RUN pip install --upgrade pip && pip install -r requirements.txt
+RUN pip install --upgrade pip && pip install -r requirements.txt \
+    # pip carries its own vendored copies of urllib3/msgpack/setuptools that Trivy flags,
+    # and nothing needs pip once the deps are in, so take it out of the venv
+    && pip uninstall -y pip
 
 # ---- runtime stage ----
 FROM python:3.12-slim
